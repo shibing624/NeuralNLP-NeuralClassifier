@@ -43,14 +43,14 @@
     "max_token_ngram_dict_size": 10000000,
     "max_keyword_dict_size": 100,
     "max_topic_dict_size": 100,
-    "max_token_len": 256,
-    "max_char_len": 512,
+    "max_token_len": 128,
+    "max_char_len": 128,
     "max_char_len_per_token": 4,
     "token_pretrained_file": "",
     "keyword_pretrained_file": ""
   },
   "train": {
-    "batch_size": 4,
+    "batch_size": 32,
     "start_epoch": 1,
     "num_epochs": 5,
     "num_epochs_static_embedding": 0,
