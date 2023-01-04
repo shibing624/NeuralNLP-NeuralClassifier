@@ -1,5 +1,5 @@
-#!/usr/bin/env python 
-# coding: utf-8 
+#!/usr/bin/env python
+# coding: utf-8
 """
 Tencent is pleased to support the open source community by making NeuralClassifier available.
 Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
@@ -37,6 +37,7 @@ class BertHMCN(Classifier):
         self.hierarchical_class = dataset.hierarchy_classes
         self.global2local = config.HMCN.global2local
         self.bert = AutoModel.from_pretrained(config.bert_model)
+        self.bert_hidden_size = self.bert.config.hidden_size
         hidden_dimension = config.TextRNN.hidden_dimension
         if config.TextRNN.bidirectional:
             hidden_dimension *= 2
@@ -46,7 +47,7 @@ class BertHMCN(Classifier):
         for i in range(1, len(self.hierarchical_depth)):
             self.global_layers.append(
                 torch.nn.Sequential(
-                    torch.nn.Linear(64 + self.hierarchical_depth[i - 1], self.hierarchical_depth[i]),
+                    torch.nn.Linear(self.bert_hidden_size + self.hierarchical_depth[i - 1], self.hierarchical_depth[i]),
                     torch.nn.ReLU(),
                     torch.nn.BatchNorm1d(self.hierarchical_depth[i]),
                     torch.nn.Dropout(p=0.5)
@@ -94,8 +95,8 @@ class BertHMCN(Classifier):
             attention_mask=batch[cDataset.DOC_ATTENTION_MASK].to(self.config.device),
             token_type_ids=batch[cDataset.DOC_TOKEN_TYPE_IDS].to(self.config.device),
         )
-
-        doc_embedding = outputs[1]
+        pooled_output = outputs[1]
+        doc_embedding = self.dropout(pooled_output)
         local_layer_outputs = []
         global_layer_activation = doc_embedding
         for i, (local_layer, global_layer) in enumerate(zip(self.local_layers, self.global_layers)):
@@ -149,8 +150,8 @@ class BertForMultiLabelSequenceClassification(BertPreTrainedModel):
         logits = self.classifier(pooled_output)
 
         outputs = (logits,) + outputs[
-                              2:
-                              ]  # add hidden states and attention if they are here
+            2:
+        ]  # add hidden states and attention if they are here
 
         if labels is not None:
             loss_fct = BCEWithLogitsLoss(pos_weight=self.pos_weight)

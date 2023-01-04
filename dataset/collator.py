@@ -51,6 +51,8 @@ class ClassificationCollator(Collator):
         self.min_token_max_len = min_seq
         self.min_char_max_len = min_seq
         self.label_size = label_size
+        self.max_length = conf.feature.max_char_len
+
 
     def _get_multi_hot_label(self, doc_labels):
         """For multi-label classification
@@ -312,9 +314,11 @@ class BertHMCNCollator(ClassificationCollator):
             tensor_doc_labels = self._get_multi_hot_label(doc_labels)
             doc_label_list = doc_labels
 
-        tokens = self.tokenizer(doc_contents, max_length=doc_char_max_len,
-                                                                   truncation=True,
-                                                                   padding='max_length', return_tensors='pt')
+        tokens = self.tokenizer(doc_contents, 
+                                max_length=self.max_length,
+                                truncation=True,
+                                padding='max_length', 
+                                return_tensors='pt')
 
         batch_map = {
             cDataset.DOC_LABEL: tensor_doc_labels,
