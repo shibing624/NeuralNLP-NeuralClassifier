@@ -51,6 +51,7 @@ class ClassificationDataset(DatasetBase):
     DOC_CHAR_IN_TOKEN_MAX_LEN = "doc_char_in_token_max_len"
 
     # bert params, input_ids, attention_mask, token_type_ids, position_ids, head_mask
+    DOC_CONTENT = "doc_content"
     DOC_INPUT_IDS = "input_ids"
     DOC_ATTENTION_MASK = "attention_mask"
     DOC_TOKEN_TYPE_IDS = "token_type_ids"
@@ -167,8 +168,12 @@ class ClassificationDataset(DatasetBase):
                               self.token_ngram_map,
                               self.config.feature.max_char_len,
                               self.config.feature.max_char_len_per_token)
+        doc_content = doc_tokens
+        if isinstance(doc_tokens, list):
+            doc_content = ''.join(doc_tokens) if self.config.is_chinese else ' '.join(doc_tokens)
         return {self.DOC_LABEL: self._label_to_id(doc_labels, self.label_map) if self.model_mode != ModeType.PREDICT else [0],
                 self.DOC_TOKEN: token_ids, self.DOC_CHAR: char_ids,
+                self.DOC_CONTENT: doc_content,
                 self.DOC_CHAR_IN_TOKEN: char_in_token_ids,
                 self.DOC_TOKEN_NGRAM: token_ngram_ids,
                 self.DOC_KEYWORD:

@@ -88,10 +88,6 @@ class BertHMCN(Classifier):
                 param_group["lr"] = 0
 
     def forward(self, batch):
-        embedding = self.char_embedding(
-            batch[cDataset.DOC_TOKEN].to(self.config.device))
-        length = batch[cDataset.DOC_CHAR_LEN].to(self.config.device)
-
         # bert input: input_ids, attention_mask, token_type_ids, position_ids, head_mask
         outputs = self.bert(
             batch[cDataset.DOC_INPUT_IDS].to(self.config.device),

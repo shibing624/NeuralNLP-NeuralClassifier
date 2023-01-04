@@ -25,7 +25,7 @@ from config import Config
 from dataset.classification_dataset import ClassificationDataset
 from dataset.collator import ClassificationCollator
 from dataset.collator import FastTextCollator
-from dataset.collator import ClassificationType
+from dataset.collator import ClassificationType, BertHMCNCollator
 from evaluate.classification_evaluate import \
     ClassificationEvaluator as cEvaluator
 from model.classification.drnn import DRNN
@@ -46,7 +46,7 @@ from util import ModeType
 
 ClassificationDataset, ClassificationCollator, FastTextCollator, ClassificationLoss, cEvaluator
 FastText, TextCNN, TextRNN, TextRCNN, DRNN, TextVDCNN, Transformer, DPCNN, AttentiveConvNet, \
-RegionEmbedding, HMCN, BertHMCN
+RegionEmbedding, HMCN, BertHMCN, BertHMCNCollator
 
 
 def get_data_loader(dataset_name, collate_name, conf):
@@ -271,7 +271,7 @@ def train(conf):
 
 
 if __name__ == '__main__':
-    config = Config(config_file=sys.argv[1])
+    config = Config(config_file='conf/train.bert_hmcn.json')
     os.environ['CUDA_VISIBLE_DEVICES'] = str(config.train.visible_device_list)
     torch.manual_seed(1)
     torch.cuda.manual_seed(1)

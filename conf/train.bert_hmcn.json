@@ -7,7 +7,8 @@
   },
   "device": "cuda",
   "model_name": "BertHMCN",
-  "bert_model": "bert-base-chinese",
+  "bert_model": "bert-base-cased",
+  "is_chinese": false,
   "checkpoint_dir": "checkpoint_dir_rcv2",
   "model_dir": "trained_model_rcv2",
   "data": {

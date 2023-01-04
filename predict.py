@@ -26,6 +26,7 @@ from torch.utils.data import DataLoader
 from config import Config
 from dataset.classification_dataset import ClassificationDataset
 from dataset.collator import ClassificationCollator
+from dataset.collator import BertHMCNCollator
 from dataset.collator import ClassificationType
 from dataset.collator import FastTextCollator
 from model.classification.drnn import DRNN
@@ -43,7 +44,7 @@ from model.classification.region_embedding import RegionEmbedding
 from model.model_util import get_optimizer, get_hierar_relations
 
 ClassificationDataset, ClassificationCollator, FastTextCollator,FastText, TextCNN, TextRNN, TextRCNN, DRNN, TextVDCNN, Transformer, DPCNN, AttentiveConvNet, RegionEmbedding,
-HMCN, BertHMCN
+HMCN, BertHMCN, BertHMCNCollator
 
 class Predictor(object):
     def __init__(self, config):

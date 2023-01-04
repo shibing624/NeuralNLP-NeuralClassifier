@@ -259,10 +259,10 @@ class BertHMCNCollator(ClassificationCollator):
             padding = [cDataset.VOCAB_PADDING] * (max_len - len(ori_vocabs))
             vocabs.append(ori_vocabs + padding)
 
+        doc_contents = []
         doc_labels = []
 
         doc_token = []
-        doc_tokens = []
         doc_char = []
         doc_char_in_token = []
 
@@ -287,7 +287,7 @@ class BertHMCNCollator(ClassificationCollator):
             self._append_label(doc_labels, value)
             _append_vocab(value[cDataset.DOC_TOKEN], doc_token,
                           doc_token_max_len)
-            doc_tokens.append(value[cDataset.DOC_TOKEN])
+            doc_contents.append(value[cDataset.DOC_CONTENT])
             doc_token_len.append(len(value[cDataset.DOC_TOKEN]))
             _append_vocab(value[cDataset.DOC_CHAR], doc_char, doc_char_max_len)
             doc_char_len.append(len(value[cDataset.DOC_CHAR]))
@@ -312,7 +312,7 @@ class BertHMCNCollator(ClassificationCollator):
             tensor_doc_labels = self._get_multi_hot_label(doc_labels)
             doc_label_list = doc_labels
 
-        input_ids, attention_mask, token_type_ids = self.tokenizer(doc_tokens, max_length=doc_char_max_len,
+        tokens = self.tokenizer(doc_contents, max_length=doc_char_max_len,
                                                                    truncation=True,
                                                                    padding='max_length', return_tensors='pt')
 
@@ -343,9 +343,9 @@ class BertHMCNCollator(ClassificationCollator):
             cDataset.DOC_CHAR_IN_TOKEN_MAX_LEN:
                 torch.tensor([doc_char_in_token_max_len], dtype=torch.float32),
 
-            cDataset.DOC_INPUT_IDS: input_ids.squeeze(1),
-            cDataset.DOC_ATTENTION_MASK: attention_mask.squeeze(1),
-            cDataset.DOC_TOKEN_TYPE_IDS: token_type_ids.squeeze(1)
+            cDataset.DOC_INPUT_IDS: tokens['input_ids'].squeeze(1),
+            cDataset.DOC_ATTENTION_MASK: tokens['attention_mask'].squeeze(1),
+            cDataset.DOC_TOKEN_TYPE_IDS: tokens['token_type_ids'].squeeze(1)
 
         }
         return batch_map

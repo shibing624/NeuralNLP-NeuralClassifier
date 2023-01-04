@@ -24,6 +24,7 @@ from dataset.classification_dataset import ClassificationDataset
 from dataset.collator import ClassificationCollator
 from dataset.collator import ClassificationType
 from dataset.collator import FastTextCollator
+from dataset.collator import BertHMCNCollator
 from evaluate.classification_evaluate import \
     ClassificationEvaluator as cEvaluator
 from model.classification.drnn import DRNN
@@ -37,12 +38,13 @@ from model.classification.dpcnn import DPCNN
 from model.classification.attentive_convolution import AttentiveConvNet
 from model.classification.region_embedding import RegionEmbedding
 from model.classification.hmcn import HMCN
+from model.classification.bert_hmcn import BertHMCN
 from model.model_util import get_optimizer, get_hierar_relations
 from util import ModeType
 
 ClassificationDataset, ClassificationCollator, FastTextCollator, cEvaluator,
 FastText, TextCNN, TextRNN, TextRCNN, DRNN, TextVDCNN, Transformer, DPCNN,
-AttentiveConvNet, RegionEmbedding
+AttentiveConvNet, RegionEmbedding, BertHMCN, BertHMCNCollator
 
 
 def get_classification_model(model_name, dataset, conf):
@@ -62,8 +64,11 @@ def eval(conf):
     logger = util.Logger(conf)
     model_name = conf.model_name
     dataset_name = "ClassificationDataset"
-    collate_name = "FastTextCollator" if model_name == "FastText" \
-        else "ClassificationCollator"
+    collate_name = "ClassificationCollator"
+    if model_name == "FastText":
+        collate_name = "FastTextCollator"
+    elif model_name == "BertHMCN":
+        collate_name = "BertHMCNCollator"
 
     test_dataset = globals()[dataset_name](conf, conf.data.test_json_files)
     collate_fn = globals()[collate_name](conf, len(test_dataset.label_map))
