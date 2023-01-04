@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding:utf-8
+# coding:utf-8
 """
 Tencent is pleased to support the open source community by making NeuralClassifier available.
 Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
@@ -63,7 +63,7 @@ class ClassificationCollator(Collator):
         doc_labels_extend = \
             [[doc_labels[i][0] for x in range(max_label_num)] for i in range(batch_size)]
         for i in range(0, batch_size):
-            doc_labels_extend[i][0 : len(doc_labels[i])] = doc_labels[i]
+            doc_labels_extend[i][0: len(doc_labels[i])] = doc_labels[i]
         y = torch.Tensor(doc_labels_extend).long()
         y_onehot = torch.zeros(batch_size, self.label_size).scatter_(1, y, 1)
         return y_onehot
@@ -170,6 +170,7 @@ class FastTextCollator(ClassificationCollator):
     """FastText Collator
     Extra support features: token, token-ngrams, keywords, topics.
     """
+
     def __call__(self, batch):
         def _append_vocab(sample, vocabs, offsets, lens, name):
             filtered_vocab = [x for x in sample[name] if
@@ -244,13 +245,13 @@ class FastTextCollator(ClassificationCollator):
         return batch_map
 
 
-
-class BertCollator(ClassificationCollator):
-    """Bert Collator
+class BertHMCNCollate(ClassificationCollator):
+    """Bert HMCN Collator
     Extra support features: get input_ids, attention_mask, token_type_ids
     """
+
     def __init__(self, conf, label_size):
-        super(ClassificationCollator, self).__init__(conf.device)
+        super(BertHMCNCollate, self).__init__(conf, label_size)
         self.tokenizer = BertTokenizer.from_pretrained(conf.bert_model)
 
     def __call__(self, batch):
@@ -311,8 +312,9 @@ class BertCollator(ClassificationCollator):
             tensor_doc_labels = self._get_multi_hot_label(doc_labels)
             doc_label_list = doc_labels
 
-        input_ids, attention_mask, token_type_ids = self.tokenizer(doc_tokens, max_length=doc_char_max_len, truncation=True,
-                              padding='max_length', return_tensors='pt')
+        input_ids, attention_mask, token_type_ids = self.tokenizer(doc_tokens, max_length=doc_char_max_len,
+                                                                   truncation=True,
+                                                                   padding='max_length', return_tensors='pt')
 
         batch_map = {
             cDataset.DOC_LABEL: tensor_doc_labels,

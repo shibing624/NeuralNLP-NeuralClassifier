@@ -18,6 +18,8 @@ from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 from transformers import (
     BertModel,
     BertPreTrainedModel,
+    BertConfig,
+    AutoModel,
 )
 from model.classification.classifier import Classifier
 
@@ -29,12 +31,12 @@ class BertHMCN(Classifier):
         Reference: "Hierarchical Multi-Label Classification Networks"
     """
 
-    def __init__(self, dataset, config, bert_config):
+    def __init__(self, dataset, config):
         super(BertHMCN, self).__init__(dataset, config)
         self.hierarchical_depth = config.HMCN.hierarchical_depth
         self.hierarchical_class = dataset.hierarchy_classes
         self.global2local = config.HMCN.global2local
-        self.bert = BertModel(bert_config)
+        self.bert = AutoModel.from_pretrained(config.bert_model)
         hidden_dimension = config.TextRNN.hidden_dimension
         if config.TextRNN.bidirectional:
             hidden_dimension *= 2

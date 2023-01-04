@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding:utf-8
+# coding:utf-8
 """
 Tencent is pleased to support the open source community by making NeuralClassifier available.
 Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.
@@ -43,7 +43,6 @@ from model.classification.bert_hmcn import BertHMCN
 from model.loss import ClassificationLoss
 from model.model_util import get_optimizer, get_hierar_relations
 from util import ModeType
-
 
 ClassificationDataset, ClassificationCollator, FastTextCollator, ClassificationLoss, cEvaluator
 FastText, TextCNN, TextRNN, TextRCNN, DRNN, TextVDCNN, Transformer, DPCNN, AttentiveConvNet, \
@@ -95,7 +94,7 @@ class ClassificationTrainer(object):
         self.loss_fn = loss_fn
         if self.conf.task_info.hierarchical:
             self.hierar_relations = get_hierar_relations(
-                    self.conf.task_info.hierar_taxonomy, label_map)
+                self.conf.task_info.hierar_taxonomy, label_map)
 
     def train(self, data_loader, model, optimizer, stage, epoch):
         model.update_lr(optimizer, epoch)
@@ -158,7 +157,7 @@ class ClassificationTrainer(object):
                     is_multi)
             # flat classificaiton
             else:
-                logits = model(batch) 
+                logits = model(batch)
                 loss = self.loss_fn(
                     logits,
                     batch[ClassificationDataset.DOC_LABEL].to(self.conf.device),
@@ -196,7 +195,7 @@ class ClassificationTrainer(object):
                     fscore_list[0][cEvaluator.MACRO_AVERAGE],
                     right_list[0][cEvaluator.MICRO_AVERAGE],
                     predict_list[0][cEvaluator.MICRO_AVERAGE],
-                        standard_list[0][cEvaluator.MICRO_AVERAGE], total_loss))
+                    standard_list[0][cEvaluator.MICRO_AVERAGE], total_loss))
             return fscore_list[0][cEvaluator.MICRO_AVERAGE]
 
 
@@ -221,8 +220,11 @@ def train(conf):
 
     model_name = conf.model_name
     dataset_name = "ClassificationDataset"
-    collate_name = "FastTextCollator" if model_name == "FastText" \
-        else "ClassificationCollator"
+    collate_name = "ClassificationCollate"
+    if model_name == "FastText":
+        collate_name = "FastTextCollate"
+    elif model_name == "BertHMCN":
+        collate_name = "BertHMCNCollate"
     train_data_loader, validate_data_loader, test_data_loader = \
         get_data_loader(dataset_name, collate_name, conf)
     empty_dataset = globals()[dataset_name](conf, [], mode="train")
