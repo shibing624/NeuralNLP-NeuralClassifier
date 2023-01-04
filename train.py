@@ -220,11 +220,11 @@ def train(conf):
 
     model_name = conf.model_name
     dataset_name = "ClassificationDataset"
-    collate_name = "ClassificationCollate"
+    collate_name = "ClassificationCollator"
     if model_name == "FastText":
-        collate_name = "FastTextCollate"
+        collate_name = "FastTextCollator"
     elif model_name == "BertHMCN":
-        collate_name = "BertHMCNCollate"
+        collate_name = "BertHMCNCollator"
     train_data_loader, validate_data_loader, test_data_loader = \
         get_data_loader(dataset_name, collate_name, conf)
     empty_dataset = globals()[dataset_name](conf, [], mode="train")

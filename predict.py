@@ -47,8 +47,11 @@ class Predictor(object):
         self.model_name = config.model_name
         self.use_cuda = config.device.startswith("cuda")
         self.dataset_name = "ClassificationDataset"
-        self.collate_name = "FastTextCollator" if self.model_name == "FastText" \
-                else "ClassificationCollator"
+        self.collate_name = "ClassificationCollator"
+        if self.model_name == "FastText":
+            self.collate_name = "FastTextCollator"
+        elif self.model_name == "BertHMCN":
+            self.collate_name = "BertHMCNCollator"
         self.dataset = globals()[self.dataset_name](config, [], mode="infer")
         self.collate_fn = globals()[self.collate_name](config, len(self.dataset.label_map))
         self.model = Predictor._get_classification_model(self.model_name, self.dataset, config)

@@ -245,13 +245,13 @@ class FastTextCollator(ClassificationCollator):
         return batch_map
 
 
-class BertHMCNCollate(ClassificationCollator):
+class BertHMCNCollator(ClassificationCollator):
     """Bert HMCN Collator
     Extra support features: get input_ids, attention_mask, token_type_ids
     """
 
     def __init__(self, conf, label_size):
-        super(BertHMCNCollate, self).__init__(conf, label_size)
+        super(BertHMCNCollator, self).__init__(conf, label_size)
         self.tokenizer = BertTokenizer.from_pretrained(conf.bert_model)
 
     def __call__(self, batch):
