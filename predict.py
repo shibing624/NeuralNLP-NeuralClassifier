@@ -18,6 +18,7 @@ import numpy as np
 import os
 import sys
 import json
+from time import time
 
 import torch
 from torch.utils.data import DataLoader
@@ -82,7 +83,10 @@ class Predictor(object):
         with torch.no_grad():
             batch_texts = [self.dataset._get_vocab_id_list(json.loads(text)) for text in texts]
             batch_texts = self.collate_fn(batch_texts)
-            logits = self.model(batch_texts)
+            if self.model_name == "HMCN":
+                (global_logits, local_logits, logits) = self.model(batch_texts)
+            else:
+                logits = self.model(batch_texts)
             if self.config.task_info.label_type != ClassificationType.MULTI_LABEL:
                 probs = torch.softmax(logits, dim=1)
             else:
@@ -94,6 +98,7 @@ if __name__ == "__main__":
     config = Config(config_file=sys.argv[1])
     predictor = Predictor(config)
     batch_size = config.eval.batch_size
+    t1 = time()
     input_texts = []
     predict_probs = []
     is_multi = config.task_info.label_type == ClassificationType.MULTI_LABEL
@@ -105,6 +110,7 @@ if __name__ == "__main__":
         predict_prob = predictor.predict(batch_texts)
         for j in predict_prob:
             predict_probs.append(j)
+    print(f"spend time: {(time() - t1):.4f} s, count: {len(predict_probs)}")
     with codecs.open("predict.txt", "w", predictor.dataset.CHARSET) as of:
         for predict_prob in predict_probs:
             if not is_multi:
