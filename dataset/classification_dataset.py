@@ -50,6 +50,13 @@ class ClassificationDataset(DatasetBase):
     DOC_CHAR_MAX_LEN = "doc_char_max_len"
     DOC_CHAR_IN_TOKEN_MAX_LEN = "doc_char_in_token_max_len"
 
+    # bert params, input_ids, attention_mask, token_type_ids, position_ids, head_mask
+    DOC_INPUT_IDS = "input_ids"
+    DOC_ATTENTION_MASK = "attention_mask"
+    DOC_TOKEN_TYPE_IDS = "token_type_ids"
+    DOC_POSITION_IDS = "position_ids"
+    DOC_HEAD_MASK = "head_mask"
+
     def __init__(self, config, json_files, generate_dict=False,
                  mode=ModeType.EVAL):
         super(ClassificationDataset, self).__init__(

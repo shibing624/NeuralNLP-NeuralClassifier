@@ -15,7 +15,7 @@ the License.
 """Collator for NeuralClassifier"""
 
 import torch
-
+from transformers import BertTokenizer
 from dataset.classification_dataset import ClassificationDataset as cDataset
 from util import Type
 
@@ -241,4 +241,109 @@ class FastTextCollator(ClassificationCollator):
                 torch.tensor(doc_keywords_len, dtype=torch.float32),
             cDataset.DOC_TOPIC_LEN:
                 torch.tensor(doc_topics_len, dtype=torch.float32)}
+        return batch_map
+
+
+
+class BertCollator(ClassificationCollator):
+    """Bert Collator
+    Extra support features: get input_ids, attention_mask, token_type_ids
+    """
+    def __init__(self, conf, label_size):
+        super(ClassificationCollator, self).__init__(conf.device)
+        self.tokenizer = BertTokenizer.from_pretrained(conf.bert_model)
+
+    def __call__(self, batch):
+        def _append_vocab(ori_vocabs, vocabs, max_len):
+            padding = [cDataset.VOCAB_PADDING] * (max_len - len(ori_vocabs))
+            vocabs.append(ori_vocabs + padding)
+
+        doc_labels = []
+
+        doc_token = []
+        doc_tokens = []
+        doc_char = []
+        doc_char_in_token = []
+
+        doc_token_len = []
+        doc_char_len = []
+        doc_char_in_token_len = []
+
+        doc_token_max_len = self.min_token_max_len
+        doc_char_max_len = self.min_char_max_len
+        doc_char_in_token_max_len = 0
+
+        for _, value in enumerate(batch):
+            doc_token_max_len = max(doc_token_max_len,
+                                    len(value[cDataset.DOC_TOKEN]))
+            doc_char_max_len = max(doc_char_max_len,
+                                   len(value[cDataset.DOC_CHAR]))
+            for char_in_token in value[cDataset.DOC_CHAR_IN_TOKEN]:
+                doc_char_in_token_max_len = max(doc_char_in_token_max_len,
+                                                len(char_in_token))
+
+        for _, value in enumerate(batch):
+            self._append_label(doc_labels, value)
+            _append_vocab(value[cDataset.DOC_TOKEN], doc_token,
+                          doc_token_max_len)
+            doc_tokens.append(value[cDataset.DOC_TOKEN])
+            doc_token_len.append(len(value[cDataset.DOC_TOKEN]))
+            _append_vocab(value[cDataset.DOC_CHAR], doc_char, doc_char_max_len)
+            doc_char_len.append(len(value[cDataset.DOC_CHAR]))
+
+            doc_char_in_token_len_tmp = []
+            for char_in_token in value[cDataset.DOC_CHAR_IN_TOKEN]:
+                _append_vocab(char_in_token, doc_char_in_token,
+                              doc_char_in_token_max_len)
+                doc_char_in_token_len_tmp.append(len(char_in_token))
+
+            padding = [cDataset.VOCAB_PADDING] * doc_char_in_token_max_len
+            for _ in range(
+                    len(value[cDataset.DOC_CHAR_IN_TOKEN]), doc_token_max_len):
+                doc_char_in_token.append(padding)
+                doc_char_in_token_len_tmp.append(0)
+            doc_char_in_token_len.append(doc_char_in_token_len_tmp)
+
+        if self.classification_type == ClassificationType.SINGLE_LABEL:
+            tensor_doc_labels = torch.tensor(doc_labels)
+            doc_label_list = [[x] for x in doc_labels]
+        elif self.classification_type == ClassificationType.MULTI_LABEL:
+            tensor_doc_labels = self._get_multi_hot_label(doc_labels)
+            doc_label_list = doc_labels
+
+        input_ids, attention_mask, token_type_ids = self.tokenizer(doc_tokens, max_length=doc_char_max_len, truncation=True,
+                              padding='max_length', return_tensors='pt')
+
+        batch_map = {
+            cDataset.DOC_LABEL: tensor_doc_labels,
+            cDataset.DOC_LABEL_LIST: doc_label_list,
+
+            cDataset.DOC_TOKEN: torch.tensor(doc_token),
+            cDataset.DOC_CHAR: torch.tensor(doc_char),
+            cDataset.DOC_CHAR_IN_TOKEN: torch.tensor(doc_char_in_token),
+
+            cDataset.DOC_TOKEN_MASK: torch.tensor(doc_token).gt(0).float(),
+            cDataset.DOC_CHAR_MASK: torch.tensor(doc_char).gt(0).float(),
+            cDataset.DOC_CHAR_IN_TOKEN_MASK:
+                torch.tensor(doc_char_in_token).gt(0).float(),
+
+            cDataset.DOC_TOKEN_LEN: torch.tensor(
+                doc_token_len, dtype=torch.float32),
+            cDataset.DOC_CHAR_LEN: torch.tensor(
+                doc_char_len, dtype=torch.float32),
+            cDataset.DOC_CHAR_IN_TOKEN_LEN: torch.tensor(
+                doc_char_in_token_len, dtype=torch.float32),
+
+            cDataset.DOC_TOKEN_MAX_LEN:
+                torch.tensor([doc_token_max_len], dtype=torch.float32),
+            cDataset.DOC_CHAR_MAX_LEN:
+                torch.tensor([doc_char_max_len], dtype=torch.float32),
+            cDataset.DOC_CHAR_IN_TOKEN_MAX_LEN:
+                torch.tensor([doc_char_in_token_max_len], dtype=torch.float32),
+
+            cDataset.DOC_INPUT_IDS: input_ids.squeeze(1),
+            cDataset.DOC_ATTENTION_MASK: attention_mask.squeeze(1),
+            cDataset.DOC_TOKEN_TYPE_IDS: token_type_ids.squeeze(1)
+
+        }
         return batch_map

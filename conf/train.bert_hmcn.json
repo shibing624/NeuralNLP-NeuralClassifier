@@ -6,7 +6,7 @@
     "hierar_penalty": 1e-5
   },
   "device": "cuda",
-  "model_name": "HMCN",
+  "model_name": "BertHMCN",
   "checkpoint_dir": "checkpoint_dir_rcv1",
   "model_dir": "trained_model_rcv1",
   "data": {
@@ -50,7 +50,7 @@
   "train": {
     "batch_size": 64,
     "start_epoch": 1,
-    "num_epochs": 50,
+    "num_epochs": 5,
     "num_epochs_static_embedding": 0,
     "decay_steps": 1000,
     "decay_rate": 1.0,
@@ -151,6 +151,10 @@
     "hidden_size": 64
   },
   "HMCN": {
+    "hierarchical_depth": [0, 384, 384, 384, 384],
+    "global2local": [0, 4, 55, 43, 1]
+  },
+  "BertHMCN": {
     "hierarchical_depth": [0, 384, 384, 384, 384],
     "global2local": [0, 4, 55, 43, 1]
   },

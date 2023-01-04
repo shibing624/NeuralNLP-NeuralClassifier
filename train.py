@@ -39,13 +39,15 @@ from model.classification.dpcnn import DPCNN
 from model.classification.attentive_convolution import AttentiveConvNet
 from model.classification.region_embedding import RegionEmbedding
 from model.classification.hmcn import HMCN
+from model.classification.bert_hmcn import BertHMCN
 from model.loss import ClassificationLoss
 from model.model_util import get_optimizer, get_hierar_relations
 from util import ModeType
 
 
 ClassificationDataset, ClassificationCollator, FastTextCollator, ClassificationLoss, cEvaluator
-FastText, TextCNN, TextRNN, TextRCNN, DRNN, TextVDCNN, Transformer, DPCNN, AttentiveConvNet, RegionEmbedding
+FastText, TextCNN, TextRNN, TextRCNN, DRNN, TextVDCNN, Transformer, DPCNN, AttentiveConvNet, \
+RegionEmbedding, HMCN, BertHMCN
 
 
 def get_data_loader(dataset_name, collate_name, conf):
@@ -141,6 +143,19 @@ class ClassificationTrainer(object):
                     batch[ClassificationDataset.DOC_LABEL].to(self.conf.device),
                     False,
                     is_multi)
+            # hierarchical classification with Bert HMCN
+            elif self.conf.model_name == "BertHMCN":
+                (global_logits, local_logits, logits) = model(batch)
+                loss = self.loss_fn(
+                    global_logits,
+                    batch[ClassificationDataset.DOC_LABEL].to(self.conf.device),
+                    False,
+                    is_multi)
+                loss += self.loss_fn(
+                    local_logits,
+                    batch[ClassificationDataset.DOC_LABEL].to(self.conf.device),
+                    False,
+                    is_multi)
             # flat classificaiton
             else:
                 logits = model(batch) 
@@ -170,7 +185,7 @@ class ClassificationTrainer(object):
                     threshold=self.conf.eval.threshold, top_k=self.conf.eval.top_k,
                     is_flat=self.conf.eval.is_flat, is_multi=is_multi)
             # precision_list[0] save metrics of flat classification
-            # precision_list[1:] save metrices of hierarchical classification
+            # precision_list[1:] save metrics of hierarchical classification
             self.logger.warn(
                 "%s performance at epoch %d is precision: %f, "
                 "recall: %f, fscore: %f, macro-fscore: %f, right: %d, predict: %d, standard: %d.\n"
@@ -256,6 +271,6 @@ def train(conf):
 if __name__ == '__main__':
     config = Config(config_file=sys.argv[1])
     os.environ['CUDA_VISIBLE_DEVICES'] = str(config.train.visible_device_list)
-    torch.manual_seed(2019)
-    torch.cuda.manual_seed(2019)
+    torch.manual_seed(1)
+    torch.cuda.manual_seed(1)
     train(config)
