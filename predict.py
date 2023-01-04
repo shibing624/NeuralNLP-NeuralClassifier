@@ -35,11 +35,14 @@ from model.classification.textrnn import TextRNN
 from model.classification.textrcnn import TextRCNN
 from model.classification.transformer import Transformer
 from model.classification.dpcnn import DPCNN
+from model.classification.hmcn import HMCN
+from model.classification.bert_hmcn import BertHMCN
 from model.classification.attentive_convolution import AttentiveConvNet
 from model.classification.region_embedding import RegionEmbedding
 from model.model_util import get_optimizer, get_hierar_relations
 
-ClassificationDataset, ClassificationCollator, FastTextCollator,FastText, TextCNN, TextRNN, TextRCNN, DRNN, TextVDCNN, Transformer, DPCNN, AttentiveConvNet, RegionEmbedding
+ClassificationDataset, ClassificationCollator, FastTextCollator,FastText, TextCNN, TextRNN, TextRCNN, DRNN, TextVDCNN, Transformer, DPCNN, AttentiveConvNet, RegionEmbedding,
+HMCN, BertHMCN
 
 class Predictor(object):
     def __init__(self, config):
