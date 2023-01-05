@@ -95,8 +95,7 @@ class BertHMCN(Classifier):
             attention_mask=batch[cDataset.DOC_ATTENTION_MASK].to(self.config.device),
             token_type_ids=batch[cDataset.DOC_TOKEN_TYPE_IDS].to(self.config.device),
         )
-        pooled_output = outputs[1]
-        doc_embedding = self.dropout(pooled_output)
+        doc_embedding = outputs[1]
         local_layer_outputs = []
         global_layer_activation = doc_embedding
         for i, (local_layer, global_layer) in enumerate(zip(self.local_layers, self.global_layers)):

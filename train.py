@@ -146,10 +146,6 @@ class ClassificationTrainer(object):
                     is_multi)
             # hierarchical classification with Bert HMCN
             elif self.conf.model_name == "BertHMCN":
-                if mode == ModeType.TRAIN:
-                    model.bert.train()
-                else:
-                    model.bert.eval()
                 (global_logits, local_logits, logits) = model(batch)
                 loss = self.loss_fn(
                     global_logits,
@@ -251,7 +247,7 @@ def train(conf):
                        conf.train.start_epoch + conf.train.num_epochs):
         start_time = time.time()
         trainer.train(train_data_loader, model, optimizer, "Train", epoch)
-        trainer.eval(train_data_loader, model, optimizer, "Train", epoch)
+        # trainer.eval(train_data_loader, model, optimizer, "Train", epoch)
         performance = trainer.eval(
             validate_data_loader, model, optimizer, "Validate", epoch)
         trainer.eval(test_data_loader, model, optimizer, "test", epoch)

@@ -64,6 +64,15 @@
     "visible_device_list": "0",
     "hidden_layer_dropout": 0.5
   },
+  "eval": {
+    "text_file": "data/rcv1_test.hierar.json",
+    "threshold": 0.5,
+    "dir": "eval_dir",
+    "batch_size": 64,
+    "is_flat": true,
+    "top_k": 100,
+    "model_dir": "checkpoint_dir_rcv2/BertHMCN_best"
+  },
   "embedding": {
     "type": "embedding",
     "dimension": 64,
@@ -104,15 +113,6 @@
     "rnn_type": "GRU",
     "bidirectional": true,
     "cell_hidden_dropout": 0.1
-  },
-  "eval": {
-    "text_file": "data/rcv1_test.hierar.json",
-    "threshold": 0.5,
-    "dir": "eval_dir",
-    "batch_size": 32,
-    "is_flat": true,
-    "top_k": 100,
-    "model_dir": "checkpoint_dir_rcv2/BertHMCN_best"
   },
   "TextVDCNN": {
     "vdcnn_depth": 9,
