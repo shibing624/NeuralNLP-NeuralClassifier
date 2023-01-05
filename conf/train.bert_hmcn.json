@@ -13,7 +13,7 @@
   "model_dir": "trained_model_rcv2",
   "data": {
     "train_json_files": [
-      "data/rcv1_train.hierar.json"
+      "data/rcv1_dev.hierar.json"
     ],
     "validate_json_files": [
       "data/rcv1_dev.hierar.json"

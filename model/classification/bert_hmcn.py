@@ -38,10 +38,6 @@ class BertHMCN(Classifier):
         self.global2local = config.HMCN.global2local
         self.bert = AutoModel.from_pretrained(config.bert_model)
         self.bert_hidden_size = self.bert.config.hidden_size
-        hidden_dimension = config.TextRNN.hidden_dimension
-        if config.TextRNN.bidirectional:
-            hidden_dimension *= 2
-
         self.local_layers = torch.nn.ModuleList()
         self.global_layers = torch.nn.ModuleList()
         for i in range(1, len(self.hierarchical_depth)):
@@ -50,7 +46,7 @@ class BertHMCN(Classifier):
                     torch.nn.Linear(self.bert_hidden_size + self.hierarchical_depth[i - 1], self.hierarchical_depth[i]),
                     torch.nn.ReLU(),
                     torch.nn.BatchNorm1d(self.hierarchical_depth[i]),
-                    torch.nn.Dropout(p=0.5)
+                    torch.nn.Dropout(p=config.train.hidden_layer_dropout)
                 ))
             self.local_layers.append(
                 torch.nn.Sequential(
