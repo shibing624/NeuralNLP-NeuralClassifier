@@ -19,7 +19,7 @@ import time
 
 import torch
 from torch.utils.data import DataLoader
-
+from tqdm import tqdm
 import util
 from config import Config
 from dataset.classification_dataset import ClassificationDataset
@@ -43,6 +43,7 @@ from model.classification.bert_hmcn import BertHMCN
 from model.loss import ClassificationLoss
 from model.model_util import get_optimizer, get_hierar_relations
 from util import ModeType
+
 
 ClassificationDataset, ClassificationCollator, FastTextCollator, ClassificationLoss, cEvaluator
 FastText, TextCNN, TextRNN, TextRCNN, DRNN, TextVDCNN, Transformer, DPCNN, AttentiveConvNet, \
@@ -116,7 +117,8 @@ class ClassificationTrainer(object):
         standard_labels = []
         num_batch = data_loader.__len__()
         total_loss = 0.
-        for batch in data_loader:
+        data_iter = tqdm(data_loader, desc=f"Running Epoch {epoch}")
+        for i, batch in enumerate(data_iter):
             # hierarchical classification using hierarchy penalty loss
             if self.conf.task_info.hierarchical:
                 logits = model(batch)
@@ -144,6 +146,10 @@ class ClassificationTrainer(object):
                     is_multi)
             # hierarchical classification with Bert HMCN
             elif self.conf.model_name == "BertHMCN":
+                if mode == ModeType.TRAIN:
+                    model.bert.train()
+                else:
+                    model.bert.eval()
                 (global_logits, local_logits, logits) = model(batch)
                 loss = self.loss_fn(
                     global_logits,
@@ -163,6 +169,8 @@ class ClassificationTrainer(object):
                     batch[ClassificationDataset.DOC_LABEL].to(self.conf.device),
                     False,
                     is_multi)
+            data_iter.set_description(
+                f"{stage}, Epoch {epoch}/{self.conf.train.num_epochs}, batch {i}/{num_batch}, loss {loss.item():.6f}")
             if mode == ModeType.TRAIN:
                 optimizer.zero_grad()
                 loss.backward()
@@ -273,6 +281,8 @@ def train(conf):
 if __name__ == '__main__':
     config = Config(config_file='conf/train.bert_hmcn.json')
     os.environ['CUDA_VISIBLE_DEVICES'] = str(config.train.visible_device_list)
+    if torch.cuda.is_available():
+        torch.cuda.set_device(0)
     torch.manual_seed(1)
     torch.cuda.manual_seed(1)
     train(config)

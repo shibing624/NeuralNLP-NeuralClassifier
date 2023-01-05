@@ -72,6 +72,7 @@ class ClassificationEvaluator(object):
                     cnt += 1
                     break
         return cnt == len(label_name)
+        
     def calculate_level_performance(
             self, id_to_label_map, right_count_category, predict_count_category,
             standard_count_category, other_text='其他',

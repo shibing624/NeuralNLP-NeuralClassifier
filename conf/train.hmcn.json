@@ -7,6 +7,7 @@
   },
   "device": "cuda",
   "model_name": "HMCN",
+  "is_chinese": false,
   "checkpoint_dir": "checkpoint_dir_rcv1",
   "model_dir": "trained_model_rcv1",
   "data": {
@@ -107,7 +108,7 @@
     "text_file": "data/rcv1_test.hierar.json",
     "threshold": 0.5,
     "dir": "eval_dir",
-    "batch_size": 1024,
+    "batch_size": 64,
     "is_flat": true,
     "top_k": 100,
     "model_dir": "checkpoint_dir_rcv1/HMCN_best"

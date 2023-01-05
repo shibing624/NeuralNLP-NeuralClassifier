@@ -25,8 +25,8 @@
     "generate_dict_using_all_json_files": true,
     "generate_dict_using_pretrained_embedding": false,
     "generate_hierarchy_label": true,
-    "dict_dir": "dict_rcv1",
-    "num_worker": 4
+    "dict_dir": "dict_rcv2",
+    "num_worker": 1
   },
   "feature": {
     "feature_names": [
@@ -50,7 +50,7 @@
     "keyword_pretrained_file": ""
   },
   "train": {
-    "batch_size": 32,
+    "batch_size": 64,
     "start_epoch": 1,
     "num_epochs": 5,
     "num_epochs_static_embedding": 0,
@@ -109,10 +109,10 @@
     "text_file": "data/rcv1_test.hierar.json",
     "threshold": 0.5,
     "dir": "eval_dir",
-    "batch_size": 1024,
+    "batch_size": 32,
     "is_flat": true,
     "top_k": 100,
-    "model_dir": "checkpoint_dir_rcv1/HMCN_best"
+    "model_dir": "checkpoint_dir_rcv2/BertHMCN_best"
   },
   "TextVDCNN": {
     "vdcnn_depth": 9,
@@ -161,7 +161,7 @@
     "global2local": [0, 4, 55, 43, 1]
   },
   "log": {
-    "logger_file": "log_test_rcv1_hierar",
+    "logger_file": "log_test_rcv2_hierar",
     "log_level": "warn"
   }
 }
