@@ -84,7 +84,7 @@ class Predictor(object):
         with torch.no_grad():
             batch_texts = [self.dataset._get_vocab_id_list(json.loads(text)) for text in texts]
             batch_texts = self.collate_fn(batch_texts)
-            if self.model_name == "HMCN":
+            if self.model_name in ["HMCN", "BertHMCN"]:
                 (global_logits, local_logits, logits) = self.model(batch_texts)
             else:
                 logits = self.model(batch_texts)

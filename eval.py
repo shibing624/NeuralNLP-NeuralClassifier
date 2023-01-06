@@ -89,7 +89,7 @@ def eval(conf):
     standard_labels = []
     evaluator = cEvaluator(conf.eval.dir)
     for batch in test_data_loader:
-        if model_name == "HMCN":
+        if model_name in ["HMCN", "BertHMCN"]:
             (global_logits, local_logits, logits) = model(batch)
         else:
             logits = model(batch)
