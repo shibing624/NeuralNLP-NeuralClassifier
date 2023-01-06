@@ -61,6 +61,7 @@ class BertHMCN(Classifier):
         self.linear = torch.nn.Linear(self.hierarchical_depth[-1], len(dataset.label_map))
         self.linear.apply(self._init_weight)
         self.dropout = torch.nn.Dropout(p=config.train.hidden_layer_dropout)
+        self.classifier = nn.Linear(self.bert_hidden_size, len(dataset.label_map))
 
     def _init_weight(self, m):
         if isinstance(m, torch.nn.Linear):
@@ -104,7 +105,13 @@ class BertHMCN(Classifier):
 
         global_layer_output = self.linear(global_layer_activation)
         local_layer_output = torch.cat(local_layer_outputs, 1)
-        return global_layer_output, local_layer_output, 0.5 * global_layer_output + 0.5 * local_layer_output
+        last_loss = 0.5 * global_layer_output + 0.5 * local_layer_output
+
+        pooled_output = outputs[1]
+        pooled_output = self.dropout(pooled_output)
+        logits = self.classifier(pooled_output)
+        last_loss = logits
+        return global_layer_output, local_layer_output, last_loss
 
 
 class BertForMultiLabelSequenceClassification(BertPreTrainedModel):

@@ -133,6 +133,19 @@ class ClassificationTrainer(object):
                     *used_argvs)
             # hierarchical classification with HMCN
             elif self.conf.model_name == "HMCN":
+                (global_logits, local_logits, logits) = model(batch)
+                loss = self.loss_fn(
+                    global_logits,
+                    batch[ClassificationDataset.DOC_LABEL].to(self.conf.device),
+                    False,
+                    is_multi)
+                loss += self.loss_fn(
+                    local_logits,
+                    batch[ClassificationDataset.DOC_LABEL].to(self.conf.device),
+                    False,
+                    is_multi)
+            # hierarchical classification with Bert HMCN
+            elif self.conf.model_name == "BertHMCN":
                 if mode == ModeType.EVAL:
                     with torch.no_grad():
                         (global_logits, local_logits, logits) = model(batch)
@@ -148,16 +161,8 @@ class ClassificationTrainer(object):
                     batch[ClassificationDataset.DOC_LABEL].to(self.conf.device),
                     False,
                     is_multi)
-            # hierarchical classification with Bert HMCN
-            elif self.conf.model_name == "BertHMCN":
-                (global_logits, local_logits, logits) = model(batch)
                 loss = self.loss_fn(
-                    global_logits,
-                    batch[ClassificationDataset.DOC_LABEL].to(self.conf.device),
-                    False,
-                    is_multi)
-                loss += self.loss_fn(
-                    local_logits,
+                    logits,
                     batch[ClassificationDataset.DOC_LABEL].to(self.conf.device),
                     False,
                     is_multi)
